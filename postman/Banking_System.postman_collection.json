@@ -1,0 +1,397 @@
+{
+  "info": {
+    "name": "Banking System - Local",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" }
+  ],
+  "item": [
+    {
+      "name": "01 - Register Customer",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Alice\",\n  \"lastName\": \"Smith\",\n  \"phone\": \"09171234567\",\n  \"address\": \"Manila\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.environment.set('customerToken', json.data.token);",
+              "pm.environment.set('customerId', json.data.userId);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Login Customer",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": { "mode": "raw", "raw": "{\n  \"usernameOrEmail\": \"alice\",\n  \"password\": \"Password123!\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.environment.set('customerToken', json.data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Login SuperAdmin",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/login",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"usernameOrEmail\": \"MikeyD\",\n  \"password\": \"REPLACE_WITH_SUPER_ADMIN_PASSWORD\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.environment.set('superAdminToken', json.data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Create Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/accounts",
+        "body": { "mode": "raw", "raw": "{\n  \"accountType\": \"SAVINGS\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.environment.set('accountId', json.data.id);",
+              "pm.environment.set('accountNumber', json.data.accountNumber);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 - Deposit 1000",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/accounts/{{accountId}}/deposit",
+        "body": { "mode": "raw", "raw": "{\n  \"amount\": 1000.00,\n  \"description\": \"Initial deposit\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.environment.set('lastReferenceNumber', json.data.referenceNumber);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 - Check Balance",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+        "url": "{{baseUrl}}/api/accounts/{{accountId}}/balance"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Balance is 1000', () => pm.expect(pm.response.json().data.balance).to.eql(1000.0000));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Withdraw 250",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/accounts/{{accountId}}/withdraw",
+        "body": { "mode": "raw", "raw": "{\n  \"amount\": 250.00,\n  \"description\": \"ATM\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 - Register Second Customer",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/auth/register",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"bob\",\n  \"email\": \"bob@example.com\",\n  \"password\": \"Password123!\",\n  \"firstName\": \"Bob\",\n  \"lastName\": \"Jones\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "pm.environment.set('secondCustomerToken', pm.response.json().data.token);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 - Create Second Account",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{secondCustomerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/accounts",
+        "body": { "mode": "raw", "raw": "{\n  \"accountType\": \"CHECKING\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "const json = pm.response.json();",
+              "pm.environment.set('secondAccountId', json.data.id);",
+              "pm.environment.set('secondAccountNumber', json.data.accountNumber);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Transfer 100",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/transfers",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"sourceAccountNumber\": \"{{accountNumber}}\",\n  \"destinationAccountNumber\": \"{{secondAccountNumber}}\",\n  \"amount\": 100.00,\n  \"description\": \"Rent\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "const json = pm.response.json();",
+              "pm.environment.set('lastReferenceNumber', json.data.referenceNumber);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Lookup Transaction by Reference",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+        "url": "{{baseUrl}}/api/transactions/{{lastReferenceNumber}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));",
+              "pm.test('Two legs returned', () => pm.expect(pm.response.json().data.length).to.eql(2));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Insufficient Balance Withdrawal",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{customerToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/accounts/{{accountId}}/withdraw",
+        "body": { "mode": "raw", "raw": "{\n  \"amount\": 999999.00\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('400 Bad Request', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Unauthorized Request",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/accounts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('401 Unauthorized', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "14 - Forbidden: SuperAdmin endpoint with customer token",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{customerToken}}" }],
+        "url": "{{baseUrl}}/api/super-admin/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('403 Forbidden', () => pm.response.to.have.status(403));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "15 - Admin: List all accounts",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{superAdminToken}}" }],
+        "url": "{{baseUrl}}/api/admin/accounts"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "16 - SuperAdmin: List all users",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{superAdminToken}}" }],
+        "url": "{{baseUrl}}/api/super-admin/users"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "17 - SuperAdmin: Promote alice to ADMIN",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{superAdminToken}}" }
+        ],
+        "url": "{{baseUrl}}/api/super-admin/users/{{customerId}}/promote",
+        "body": { "mode": "raw", "raw": "{\n  \"role\": \"ADMIN\"\n}" }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

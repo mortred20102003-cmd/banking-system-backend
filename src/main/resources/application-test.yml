@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:banking_test;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+logging:
+  level:
+    root: WARN
+    com.bank.bankingsystem: INFO
+
+app:
+  jwt:
+    secret: test_secret_only_for_unit_tests_32chars_minimum_ok
+    expiration-ms: 3600000
+    issuer: Banking_System_Test
+  super-admin:
+    username: MikeyD
+    email: mikeyD@bank.com
+    password: TestSuperAdmin@123
+  account:
+    number-prefix: "10"
+    number-length: 10

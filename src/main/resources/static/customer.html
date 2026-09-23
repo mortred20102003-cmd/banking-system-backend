@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Banking System — Customer</title>
+<link rel="stylesheet" href="/admin.css">
+<style>
+  .amount-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-bottom:12px; }
+  .amount-row label { display:block; font-size:12px; color:var(--muted); }
+  .amount-row input, .amount-row select { width:100%; margin-top:4px; padding:9px 12px;
+    background:var(--bg); border:1px solid var(--line); border-radius:8px; color:var(--text); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:20px 22px; margin-bottom:20px; }
+  .card h3 { margin:0 0 12px; font-size:15px; letter-spacing:.5px; text-transform:uppercase; color:var(--muted); }
+  .acct-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0;
+    border-bottom:1px solid var(--line); font-size:14px; }
+  .acct-row:last-child { border-bottom:none; }
+  .acct-bal { font-weight:700; color:var(--accent); font-size:17px; }
+  .acct-num { font-family:monospace; color:var(--muted); font-size:12.5px; }
+  table.tx th, table.tx td { padding:9px 12px; font-size:13px; }
+  .tx-in { color:var(--ok); font-weight:600; }
+  .tx-out { color:var(--err); font-weight:600; }
+</style>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"></head>
+<body>
+
+<!-- REGISTER VIEW -->
+<div id="register-view" class="hidden">
+  <div class="login-card" style="max-width:440px">
+    <svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true" style="display:block;margin:0 auto 12px">
+      <defs><linearGradient id="cgr" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#a855f7"/>
+      </linearGradient></defs>
+      <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#cgr)"/>
+      <path d="M14 48 V18 L32 36 L50 18 V48" fill="none" stroke="#0b1220" stroke-width="6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Create your account</h1>
+    <p class="subtitle">Banking System — Customer</p>
+    <form id="register-form" autocomplete="on">
+      <label>Username</label>
+      <input id="reg-username" type="text" required minlength="3" maxlength="50">
+      <label>Email</label>
+      <input id="reg-email" type="email" required maxlength="120">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input id="reg-password" type="password" required minlength="8" maxlength="72">
+        <button type="button" class="eye" data-target="reg-password" tabindex="-1">👁</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px">
+        <div><label>First name</label><input id="reg-first" type="text" required maxlength="60"></div>
+        <div><label>Last name</label><input id="reg-last" type="text" required maxlength="60"></div>
+      </div>
+      <label>Phone</label>
+      <input id="reg-phone" type="text" maxlength="20">
+      <label>Address</label>
+      <input id="reg-address" type="text" maxlength="255">
+      <button type="submit" id="register-btn">Create account</button>
+      <div id="register-error" class="error"></div>
+      <div class="login-links" style="text-align:center;margin-top:14px">
+        Already have an account? <a href="#" id="to-login">Sign in</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- LOGIN VIEW -->
+<div id="login-view">
+  <div class="login-card">
+    <svg viewBox="0 0 64 64" width="44" height="44" aria-hidden="true" style="display:block;margin:0 auto 12px">
+      <defs><linearGradient id="clg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#a855f7"/>
+      </linearGradient></defs>
+      <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#clg)"/>
+      <path d="M14 48 V18 L32 36 L50 18 V48" fill="none" stroke="#0b1220" stroke-width="6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <h1>Banking System</h1>
+    <p class="subtitle">Customer Login</p>
+    <form id="login-form" autocomplete="on">
+      <label>Username or Email</label>
+      <input id="login-identifier" type="text" required>
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input id="login-password" type="password" required autocomplete="current-password">
+        <button type="button" class="eye" data-target="login-password" tabindex="-1">👁</button>
+      </div>
+      <div class="login-links"><a href="#" id="forgot-link">Forgot password?</a></div>
+      <button type="submit" id="login-btn">Sign in</button>
+      <div id="login-error" class="error"></div>
+      <div class="login-links" style="text-align:center;margin-top:14px">
+        New here? <a href="#" id="to-register">Create an account</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- APP VIEW -->
+<div id="app-view" class="hidden">
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" width="22" height="22" style="vertical-align:middle;margin-right:6px">
+        <defs><linearGradient id="cbr" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#a855f7"/>
+        </linearGradient></defs>
+        <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#cbr)"/>
+        <path d="M14 48 V18 L32 36 L50 18 V48" fill="none" stroke="#0b1220" stroke-width="6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Banking System <span class="tag">CUSTOMER</span>
+    </div>
+    <div class="who">
+      <button id="theme-toggle" class="btn-ghost" type="button">☀</button>
+      <span id="who-username">—</span>
+      <button id="logout-btn" class="btn-ghost" type="button">Log out</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="accounts">My Accounts</button>
+    <button class="tab" data-tab="transfer">Transfer</button>
+    <button class="tab" data-tab="profile">Profile</button>
+  </nav>
+
+  <main>
+    <section id="tab-accounts" class="tab-panel">
+      <div class="panel-head">
+        <h2>My Accounts</h2>
+        <button class="btn primary" type="button" onclick="Cust.openCreateAccount()">+ New Account</button>
+      </div>
+      <div id="accounts-list" class="card">
+        <p class="empty">Loading…</p>
+      </div>
+    </section>
+
+    <section id="tab-transfer" class="tab-panel hidden">
+      <h2>Transfer</h2>
+      <div class="card">
+        <form id="transfer-form">
+          <div class="amount-row">
+            <div>
+              <label>From</label>
+              <select id="transfer-from" required></select>
+            </div>
+            <div>
+              <label>To account number</label>
+              <input id="transfer-to" type="text" required placeholder="1000000002">
+            </div>
+            <div>
+              <label>Amount</label>
+              <input id="transfer-amount" type="number" min="0.01" step="0.01" required>
+            </div>
+          </div>
+          <label style="display:block;font-size:12px;color:var(--muted)">Description</label>
+          <input id="transfer-desc" type="text" maxlength="255" placeholder="optional"
+                 style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--line);
+                        border-radius:8px;color:var(--text);margin-top:4px">
+          <button type="submit" class="btn primary" style="margin-top:14px">Send transfer</button>
+          <div id="transfer-msg" class="hint" style="margin-top:10px"></div>
+        </form>
+      </div>
+    </section>
+
+    <section id="tab-profile" class="tab-panel hidden">
+      <h2>Profile</h2>
+      <div class="card">
+        <form id="profile-form">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><label>First name</label><input id="prof-first" type="text"></div>
+            <div><label>Last name</label><input id="prof-last" type="text"></div>
+            <div><label>Phone</label><input id="prof-phone" type="text"></div>
+            <div><label>Address</label><input id="prof-address" type="text"></div>
+          </div>
+          <button type="submit" class="btn primary" style="margin-top:14px">Save profile</button>
+          <span id="prof-msg" class="hint" style="margin-left:12px"></span>
+        </form>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ACCOUNT DETAIL / HISTORY MODAL -->
+<div id="acct-modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="acct-title">Account</h3>
+      <button class="btn-ghost" type="button" onclick="Cust.closeModal()">Close</button>
+    </div>
+    <div id="acct-content">Loading…</div>
+  </div>
+</div>
+
+<!-- DEPOSIT / WITHDRAW MODAL -->
+<div id="tx-modal" class="modal hidden">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-head">
+      <h3 id="tx-title">Transaction</h3>
+      <button class="btn-ghost" type="button" onclick="Cust.closeTx()">Close</button>
+    </div>
+    <form id="tx-form">
+      <input type="hidden" id="tx-kind">
+      <input type="hidden" id="tx-account-id">
+      <label style="display:block;font-size:12px;color:var(--muted)">Amount</label>
+      <input id="tx-amount" type="number" min="0.01" step="0.01" required
+             style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--line);
+                    border-radius:8px;color:var(--text);margin-top:4px">
+      <label style="display:block;font-size:12px;color:var(--muted);margin-top:12px">Description</label>
+      <input id="tx-desc" type="text" maxlength="255"
+             style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--line);
+                    border-radius:8px;color:var(--text);margin-top:4px">
+      <button type="submit" class="btn primary" style="margin-top:14px">Submit</button>
+      <div id="tx-msg" class="hint" style="margin-top:10px"></div>
+    </form>
+  </div>
+</div>
+
+<!-- CREATE ACCOUNT MODAL -->
+<div id="newacct-modal" class="modal hidden">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-head">
+      <h3>Open a new account</h3>
+      <button class="btn-ghost" type="button" onclick="Cust.closeNewAcct()">Close</button>
+    </div>
+    <form id="newacct-form">
+      <label style="display:block;font-size:12px;color:var(--muted)">Account type</label>
+      <select id="newacct-type"
+              style="width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--line);
+                     border-radius:8px;color:var(--text);margin-top:4px">
+        <option value="SAVINGS">SAVINGS</option>
+        <option value="CHECKING">CHECKING</option>
+      </select>
+      <button type="submit" class="btn primary" style="margin-top:14px">Create account</button>
+      <div id="newacct-msg" class="hint" style="margin-top:10px"></div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="/customer.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+:root{
+  --bg:#0f172a; --panel:#1e293b; --panel2:#273449; --line:#334155;
+  --text:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; --accent2:#22d3ee;
+  --ok:#22c55e; --warn:#f59e0b; --err:#ef4444; --purple:#a855f7;
+  --radius:10px;
+}
+:root[data-theme="light"]{
+  --bg:#f1f5f9; --panel:#ffffff; --panel2:#f8fafc; --line:#e2e8f0;
+  --text:#0f172a; --muted:#64748b; --accent:#0284c7; --accent2:#0891b2;
+  --purple:#7c3aed;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:'Segoe UI',Roboto,system-ui,sans-serif;background:var(--bg);color:var(--text)}
+.hidden{display:none !important}
+button{cursor:pointer;font:inherit}
+input,select{font:inherit}
+
+#login-view{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;
+  background:radial-gradient(1200px 600px at 20% 20%, #164e63 0%, transparent 60%),
+             radial-gradient(1000px 500px at 80% 80%, #1e3a8a 0%, transparent 60%),
+             var(--bg)}
+.login-card{background:var(--panel);border:1px solid var(--line);padding:36px 32px;
+  border-radius:var(--radius);width:360px;box-shadow:0 20px 50px rgba(0,0,0,.4);text-align:center}
+.login-card svg{display:block;margin:0 auto 12px}
+.login-card h1{margin:0 0 4px;font-size:20px;letter-spacing:.5px}
+.login-card .subtitle{margin:0 0 24px;color:var(--muted);font-size:12px;letter-spacing:2px;text-transform:uppercase}
+.login-card form{text-align:left}
+.login-card label{display:block;font-size:12px;color:var(--muted);margin:14px 0 0}
+.login-card input[type=text],
+.login-card input[type=password]{width:100%;margin-top:6px;padding:10px 12px;background:var(--bg);
+  border:1px solid var(--line);border-radius:8px;color:var(--text)}
+.login-card input:focus{outline:2px solid var(--accent);border-color:transparent}
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:42px !important}
+.pw-wrap .eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);
+  background:transparent;border:none;color:var(--muted);font-size:16px;padding:6px 8px;line-height:1}
+.pw-wrap .eye:hover{color:var(--accent)}
+.pw-wrap .eye.revealed{opacity:.55}
+.login-links{text-align:right;font-size:12px;margin-top:10px}
+.login-links a{color:var(--accent);text-decoration:none}
+.login-links a:hover{text-decoration:underline}
+.login-card button[type=submit]{width:100%;padding:11px;margin-top:18px;background:var(--accent);
+  color:#042c3b;font-weight:700;border:none;border-radius:8px}
+.login-card button[type=submit]:hover{background:var(--accent2)}
+.login-card button[type=submit]:disabled{opacity:.6;cursor:wait}
+.error{color:var(--err);font-size:13px;min-height:18px;margin-top:10px;text-align:center}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  background:var(--panel);padding:14px 24px;border-bottom:1px solid var(--line)}
+.brand{font-weight:700;letter-spacing:.5px;display:flex;align-items:center}
+.tag{background:var(--purple);color:#fff;padding:2px 8px;border-radius:6px;font-size:11px;margin-left:10px;letter-spacing:1px}
+.who{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:14px}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--text);
+  padding:6px 12px;border-radius:6px;font-size:13px}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+#theme-toggle{font-size:15px;padding:6px 10px}
+
+.tabs{display:flex;gap:4px;padding:12px 24px 0;border-bottom:1px solid var(--line);background:var(--panel)}
+.tab{background:transparent;border:none;color:var(--muted);padding:10px 18px;border-radius:8px 8px 0 0;font-size:14px}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom:2px solid var(--accent);margin-bottom:-1px}
+
+main{padding:24px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.panel-head h2{margin:0;font-size:18px}
+.btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  padding:8px 14px;border-radius:6px;font-size:13px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);color:#042c3b;border-color:transparent;font-weight:600}
+.btn.danger{border-color:var(--err);color:var(--err)}
+.btn.warn{border-color:var(--warn);color:var(--warn)}
+.btn.ok{border-color:var(--ok);color:var(--ok)}
+.btn.small{padding:5px 10px;font-size:12px;margin-right:4px}
+
+.grid{width:100%;border-collapse:collapse;background:var(--panel);border-radius:var(--radius);overflow:hidden}
+.grid th,.grid td{padding:11px 14px;text-align:left;font-size:13.5px;border-bottom:1px solid var(--line)}
+.grid th{background:var(--panel2);color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.5px;text-transform:uppercase}
+.grid tr:last-child td{border-bottom:none}
+.grid tr:hover td{background:rgba(56,189,248,.04)}
+.empty{color:var(--muted);text-align:center;padding:24px !important}
+
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.4px}
+.badge.CUSTOMER{background:#1e3a8a;color:#dbeafe}
+.badge.ADMIN{background:#854d0e;color:#fef3c7}
+.badge.SUPER_ADMIN{background:#4c1d95;color:#ede9fe}
+.badge.ACTIVE{background:#14532d;color:#bbf7d0}
+.badge.INACTIVE{background:#4b5563;color:#e5e7eb}
+.badge.LOCKED{background:#7f1d1d;color:#fecaca}
+.badge.FROZEN{background:#1e40af;color:#dbeafe}
+.badge.CLOSED{background:#3f3f46;color:#d4d4d8}
+.badge.SAVINGS{background:#065f46;color:#d1fae5}
+.badge.CHECKING{background:#5b21b6;color:#ede9fe}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.stat{background:var(--panel);border:1px solid var(--line);padding:22px;border-radius:var(--radius)}
+.stat-num{font-size:28px;font-weight:700;color:var(--accent)}
+.stat-label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--text);padding:12px 18px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:200;
+  font-size:14px;max-width:360px}
+.toast.ok{border-color:var(--ok)}
+.toast.err{border-color:var(--err)}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal-box{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  width:min(720px,92vw);max-height:82vh;overflow:auto;padding:20px 24px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-head h3{margin:0;font-size:16px}
+
+/* Customer detail modal */
+#cust-modal h4{color:var(--text);font-size:13px;letter-spacing:.4px;text-transform:uppercase;margin-top:14px}
+#cust-modal form label{display:block;font-size:12px;color:var(--muted)}
+
+/* Customer self-service extras */
+.amount-row label{font-size:12px}
