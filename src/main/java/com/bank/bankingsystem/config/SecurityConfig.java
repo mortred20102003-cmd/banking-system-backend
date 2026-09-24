@@ -57,7 +57,9 @@ public class SecurityConfig {
                     .requestMatchers("/admin.html", "/admin.css", "/admin.js",
                             "/favicon.ico", "/favicon.svg").permitAll()
                     // Customer self-service panel
-                    .requestMatchers("/customer.html", "/customer.js").permitAll()
+                    .requestMatchers("/customer.html", "/customer.js",
+                            "/superadmin.html", "/superadmin.js",
+                            "/superadmin.css").permitAll()
                     // OpenAPI / Swagger UI
                     .requestMatchers(
                             "/v3/api-docs/**",
