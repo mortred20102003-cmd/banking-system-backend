@@ -688,6 +688,19 @@ Import `postman/Banking_System.postman_collection.json` and `postman/Banking_Sys
 - `@PreAuthorize` + service-layer ownership = defence in depth
 - Only one `SUPER_ADMIN` can exist; seeded once, no API can create another
 
+## Virtual Cards & GCash Wallet — Educational Simulator Only
+
+The Virtual Visa Card and GCash Wallet features are **simulators**. They are
+designed to demonstrate card-number generation, wallet balance management,
+and ledger integration.
+
+⚠️ **The generated card numbers are NOT issued by any bank and will be
+REJECTED by any real payment terminal.** Do not attempt to use them for real
+transactions.
+
+This project does not integrate with GCash, Visa, Mynt, PayMongo, or any real
+payment processor. No real money moves anywhere.
+
 ---
 
 ## Future Improvements

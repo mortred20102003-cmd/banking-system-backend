@@ -120,6 +120,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="accounts">My Accounts</button>
     <button class="tab" data-tab="transfer">Transfer</button>
+    <button class="tab" data-tab="wallet">Wallet</button>
     <button class="tab" data-tab="profile">Profile</button>
   </nav>
 
@@ -175,6 +176,54 @@
           <button type="submit" class="btn primary" style="margin-top:14px">Save profile</button>
           <span id="prof-msg" class="hint" style="margin-left:12px"></span>
         </form>
+      </div>
+    </section>
+
+    <section id="tab-wallet" class="tab-panel hidden">
+      <h2>Wallet &amp; Cards</h2>
+
+      <!-- Virtual Card -->
+      <div class="card">
+        <h3>Virtual Visa Card</h3>
+        <div id="cards-list"><p class="empty">No cards yet.</p></div>
+        <div style="margin-top:14px">
+          <label style="display:block;font-size:12px;color:var(--muted)">Link to account</label>
+          <select id="card-account" style="min-width:260px;padding:9px;background:var(--bg);
+                  border:1px solid var(--line);border-radius:8px;color:var(--text);margin-top:4px"></select>
+          <button type="button" class="btn primary" style="margin-left:10px" onclick="Cust.generateCard()">Generate card</button>
+        </div>
+      </div>
+
+      <!-- GCash Wallet -->
+      <div class="card">
+        <h3>GCash Wallet</h3>
+        <div id="wallet-box"><p class="empty">Loading…</p></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
+          <div>
+            <label style="display:block;font-size:12px;color:var(--muted)">Cash-in from account</label>
+            <select id="cashin-account" style="width:100%;padding:9px;background:var(--bg);
+                    border:1px solid var(--line);border-radius:8px;color:var(--text);margin-top:4px"></select>
+            <input id="cashin-amount" type="number" min="0.01" step="0.01" placeholder="Amount"
+                   style="width:100%;padding:9px;background:var(--bg);border:1px solid var(--line);
+                          border-radius:8px;color:var(--text);margin-top:8px">
+            <button type="button" class="btn primary" style="margin-top:8px" onclick="Cust.cashIn()">Cash in</button>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;color:var(--muted)">Cash-out to account</label>
+            <select id="cashout-account" style="width:100%;padding:9px;background:var(--bg);
+                    border:1px solid var(--line);border-radius:8px;color:var(--text);margin-top:4px"></select>
+            <input id="cashout-amount" type="number" min="0.01" step="0.01" placeholder="Amount"
+                   style="width:100%;padding:9px;background:var(--bg);border:1px solid var(--line);
+                          border-radius:8px;color:var(--text);margin-top:8px">
+            <button type="button" class="btn warn" style="margin-top:8px" onclick="Cust.cashOut()">Cash out</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px">
+          <button class="btn" type="button" onclick="Cust.loadWalletTx()">Show wallet history</button>
+          <div id="wallet-tx" style="margin-top:10px"></div>
+        </div>
       </div>
     </section>
   </main>

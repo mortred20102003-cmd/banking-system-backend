@@ -389,3 +389,186 @@
   // ---------- BOOT ----------
   if (localStorage.getItem(TOKEN_KEY)) { bootApp(); }
 })();
+
+/* ============================================================
+   WALLET & CARDS — appended
+   ============================================================ */
+(function () {
+  'use strict';
+  function $(id){ return document.getElementById(id); }
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function money(v) {
+    var n = Number(v);
+    return isNaN(n) ? (v == null ? '—' : v) : n.toLocaleString('en-PH', { style: 'currency', currency: 'PHP' });
+  }
+  function api(path, opts) {
+    opts = opts || {};
+    var headers = { 'Content-Type': 'application/json' };
+    var t = localStorage.getItem('banking.customer.token');
+    if (t) headers.Authorization = 'Bearer ' + t;
+    return fetch(path, { method: opts.method || 'GET', headers: headers, body: opts.body })
+      .then(function (res) {
+        return res.json().catch(function(){ return null; }).then(function (b) {
+          if (!res.ok) throw new Error((b && b.message) || (res.status + ' error'));
+          return b;
+        });
+      });
+  }
+  function toast(msg, kind) {
+    var t = $('toast');
+    if (!t) return;
+    t.textContent = msg;
+    t.className = 'toast ' + (kind || 'ok');
+    setTimeout(function(){ t.classList.add('hidden'); }, 3200);
+  }
+
+  function loadAccountSelects() {
+    api('/api/accounts').then(function (r) {
+      var active = (r.data || []).filter(function (a) { return a.status === 'ACTIVE'; });
+      var opts = active.map(function (a) {
+        return '<option value="' + a.id + '">' + esc(a.accountNumber) +
+               ' — ' + esc(money(a.balance)) + '</option>';
+      }).join('');
+      ['card-account','cashin-account','cashout-account'].forEach(function (id) {
+        var el = $(id);
+        if (el) el.innerHTML = opts || '<option value="">No active accounts</option>';
+      });
+    }).catch(function(){});
+  }
+
+  function loadWallet() {
+    api('/api/wallet').then(function (r) {
+      var w = r.data;
+      var box = $('wallet-box');
+      if (!box) return;
+      box.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:14px">' +
+          '<div>' +
+            '<div class="acct-num">' + esc(w.walletNumber) + '</div>' +
+            '<div style="color:var(--muted);font-size:12px">GCash Wallet</div>' +
+          '</div>' +
+          '<div class="acct-bal" style="font-size:22px">' + esc(money(w.balance)) + '</div>' +
+        '</div>';
+    }).catch(function (ex) {
+      var box = $('wallet-box');
+      if (box) box.innerHTML = '<p class="error">' + esc(ex.message) + '</p>';
+    });
+  }
+
+  function loadCards() {
+    api('/api/cards').then(function (r) {
+      var list = r.data || [];
+      var box = $('cards-list');
+      if (!box) return;
+      if (!list.length) { box.innerHTML = '<p class="empty">No cards yet.</p>'; return; }
+      box.innerHTML = list.map(function (c) {
+        return '<div style="background:linear-gradient(135deg,#4c1d95,#0e7490);' +
+               'border-radius:12px;padding:18px 20px;color:#fff;margin-bottom:12px;' +
+               'box-shadow:0 6px 20px rgba(0,0,0,.35)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<div style="font-weight:700;letter-spacing:2px">' + esc(c.brand) + '</div>' +
+            '<span class="badge ' + esc(c.status) + '" style="background:#0b1220;color:#fff">' + esc(c.status) + '</span>' +
+          '</div>' +
+          '<div style="font-family:monospace;font-size:19px;letter-spacing:3px;margin:16px 0 10px">' +
+            esc(c.maskedNumber) + '</div>' +
+          '<div style="display:flex;justify-content:space-between;font-size:12px;opacity:.85">' +
+            '<span>' + esc(c.cardholderName) + '</span>' +
+            '<span>' + esc(c.expiry) + '</span>' +
+          '</div>' +
+          '<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">' +
+            '<button class="btn small" data-card-cvv="' + c.id + '">Reveal CVV</button>' +
+            (c.status === 'ACTIVE'
+              ? '<button class="btn small warn" data-card-status="FROZEN" data-card-id="' + c.id + '">Freeze</button>'
+              : c.status === 'FROZEN'
+                ? '<button class="btn small ok" data-card-status="ACTIVE" data-card-id="' + c.id + '">Unfreeze</button>'
+                : '') +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }).catch(function(){});
+  }
+
+  function loadWalletTx() {
+    api('/api/wallet/transactions?page=0&size=50').then(function (r) {
+      var rows = r.data || [];
+      var box = $('wallet-tx');
+      if (!box) return;
+      if (!rows.length) { box.innerHTML = '<p class="empty">No wallet transactions yet.</p>'; return; }
+      box.innerHTML = '<table class="grid tx"><thead><tr><th>When</th><th>Type</th><th>Amount</th><th>Before</th><th>After</th><th>Ref</th></tr></thead><tbody>' +
+        rows.map(function (t) {
+          var cls = t.type === 'CASH_IN' ? 'tx-in' : 'tx-out';
+          return '<tr>' +
+            '<td>' + esc((t.createdAt || '').replace('T', ' ').slice(0, 19)) + '</td>' +
+            '<td><span class="badge">' + esc(t.type) + '</span></td>' +
+            '<td class="' + cls + '">' + esc(money(t.amount)) + '</td>' +
+            '<td>' + esc(money(t.balanceBefore)) + '</td>' +
+            '<td>' + esc(money(t.balanceAfter)) + '</td>' +
+            '<td><code>' + esc(t.referenceNumber) + '</code></td>' +
+          '</tr>';
+        }).join('') + '</tbody></table>';
+    }).catch(function (ex) { toast(ex.message, 'err'); });
+  }
+
+  function generateCard() {
+    var accId = $('card-account') ? $('card-account').value : null;
+    if (!accId) { toast('No active account to link', 'err'); return; }
+    api('/api/cards', { method: 'POST', body: JSON.stringify({ accountId: Number(accId) }) })
+      .then(function () { toast('Card generated'); loadCards(); })
+      .catch(function (ex) { toast(ex.message, 'err'); });
+  }
+
+  function cashIn() {
+    var accId = $('cashin-account').value;
+    var amt = Number($('cashin-amount').value);
+    if (!accId || !amt || amt <= 0) { toast('Pick account and amount', 'err'); return; }
+    api('/api/wallet/cash-in', { method: 'POST', body: JSON.stringify({ accountId: Number(accId), amount: amt }) })
+      .then(function () { toast('Cash-in successful'); $('cashin-amount').value=''; loadWallet(); if (window.Cust && window.Cust.loadAccounts) window.Cust.loadAccounts(); })
+      .catch(function (ex) { toast(ex.message, 'err'); });
+  }
+
+  function cashOut() {
+    var accId = $('cashout-account').value;
+    var amt = Number($('cashout-amount').value);
+    if (!accId || !amt || amt <= 0) { toast('Pick account and amount', 'err'); return; }
+    api('/api/wallet/cash-out', { method: 'POST', body: JSON.stringify({ accountId: Number(accId), amount: amt }) })
+      .then(function () { toast('Cash-out successful'); $('cashout-amount').value=''; loadWallet(); if (window.Cust && window.Cust.loadAccounts) window.Cust.loadAccounts(); })
+      .catch(function (ex) { toast(ex.message, 'err'); });
+  }
+
+  document.addEventListener('click', function (e) {
+    var cvv = e.target.closest && e.target.closest('[data-card-cvv]');
+    if (cvv) {
+      api('/api/cards/' + cvv.dataset.cardCvv + '/reveal-cvv', { method: 'POST' })
+        .then(function (r) { alert('CVV: ' + r.data.cvv + '\n\n(Simulator only — this number will not work at any real terminal.)'); })
+        .catch(function (ex) { toast(ex.message, 'err'); });
+      return;
+    }
+    var st = e.target.closest && e.target.closest('[data-card-status]');
+    if (st) {
+      api('/api/cards/' + st.dataset.cardId + '/status?status=' + st.dataset.cardStatus, { method: 'PATCH' })
+        .then(function () { toast('Card ' + st.dataset.cardStatus); loadCards(); })
+        .catch(function (ex) { toast(ex.message, 'err'); });
+    }
+  });
+
+  // Re-run on tab click
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      if (btn.dataset.tab === 'wallet') {
+        loadAccountSelects();
+        loadWallet();
+        loadCards();
+      }
+    });
+  });
+
+  window.Cust = window.Cust || {};
+  window.Cust.generateCard = generateCard;
+  window.Cust.cashIn = cashIn;
+  window.Cust.cashOut = cashOut;
+  window.Cust.loadWalletTx = loadWalletTx;
+})();
