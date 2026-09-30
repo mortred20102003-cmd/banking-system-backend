@@ -1,0 +1,54 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: banking-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: banking_system_db
+      MYSQL_USER: banking_app
+      MYSQL_PASSWORD: banking_pass
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - banking_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    networks:
+      - banking-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: banking-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: "jdbc:mysql://mysql:3306/banking_system_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      DB_USERNAME: banking_app
+      DB_PASSWORD: banking_pass
+      JWT_SECRET: docker_only_secret_change_me_at_least_32_characters_long
+      JWT_EXPIRATION_MS: 3600000
+      SUPER_ADMIN_USERNAME: MikeyD
+      SUPER_ADMIN_EMAIL: mikeyD@bank.com
+      SUPER_ADMIN_PASSWORD: SuperAdmin@123!
+      ACCOUNT_NUMBER_PREFIX: "10"
+      ACCOUNT_NUMBER_LENGTH: 10
+      SERVER_PORT: 8080
+    ports:
+      - "8081:8080"
+    networks:
+      - banking-net
+
+volumes:
+  banking_mysql_data:
+
+networks:
+  banking-net:
+    driver: bridge
