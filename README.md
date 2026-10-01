@@ -713,3 +713,23 @@ payment processor. No real money moves anywhere.
 - Full OpenAPI / Swagger UI
 - Testcontainers for MySQL-backed integration tests
 - Docker Compose for zero-config local setup
+
+## Live Deployment
+
+- **Frontend**: https://banking-frontend-orcin.vercel.app (Vercel)
+- **Backend API**: https://banking-backend-8dii.onrender.com (Render, Docker)
+- **API Docs**: https://banking-backend-8dii.onrender.com/swagger-ui.html
+- **Database**: Aiven MySQL (managed, cloud)
+
+### Architecture
+
+Vercel hosts the static frontend (HTML/CSS/JS). Render hosts the Spring Boot
+backend in a Docker container. Both talk over HTTPS + JWT. Data lives in a
+managed MySQL instance on Aiven.
+
+### Why split deployment?
+
+Vercel is a serverless platform optimized for frontend apps and Node.js. It
+does not support long-running JVMs, persistent MySQL connections, or Flyway
+startup migrations — all of which the Spring Boot backend requires.
+Deploying to Render (which natively supports Docker + Java) resolves this.
