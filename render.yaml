@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: banking-backend
+    runtime: java
+    plan: free
+    buildCommand: mvn -B clean package -DskipTests
+    startCommand: java -Dserver.port=$PORT -jar target/banking-system-backend-1.0.0.jar
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: dev
+      - key: JAVA_VERSION
+        value: 21
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION_MS
+        value: 3600000
+      - key: SUPER_ADMIN_USERNAME
+        value: MikeyD
+      - key: SUPER_ADMIN_EMAIL
+        value: mikeyD@bank.com
+      - key: SUPER_ADMIN_PASSWORD
+        sync: false
+      - key: ACCOUNT_NUMBER_PREFIX
+        value: "10"
+      - key: ACCOUNT_NUMBER_LENGTH
+        value: 10
+      - key: FLYWAY_ENABLED
+        value: "true"
+      - key: FLYWAY_BASELINE_ON_MIGRATE
+        value: "true"
