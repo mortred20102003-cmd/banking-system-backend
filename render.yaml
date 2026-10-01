@@ -1,15 +1,12 @@
 services:
   - type: web
     name: banking-backend
-    runtime: java
+    runtime: docker
     plan: free
-    buildCommand: mvn -B clean package -DskipTests
-    startCommand: java -Dserver.port=$PORT -jar target/banking-system-backend-1.0.0.jar
+    dockerfilePath: ./Dockerfile
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: dev
-      - key: JAVA_VERSION
-        value: 21
       - key: DB_URL
         sync: false
       - key: DB_USERNAME

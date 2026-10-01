@@ -22,4 +22,4 @@ COPY --from=build /app/target/banking-system-backend-1.0.0.jar app.jar
 
 USER app
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Dserver.port=${PORT:-8080} -jar /app/app.jar"]
